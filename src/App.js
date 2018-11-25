@@ -3,9 +3,27 @@ import queryString from 'query-string';
 import logo from './logo.svg';
 import './App.css';
 
-let defaultStyle = {
-  color: '#fff'
-};
+let defaultTitle = {
+  margin: '0.2em 0 0.4em',
+  color: '#fff',
+  fontSize: '52px'
+}
+
+let defaultLabel = {
+  color: '#fff',
+  fontSize: '16px'
+}
+
+let defualtInlineLabel = {
+  display: 'inline-block',
+  padding: '0 10px'
+}
+
+let defaultInput = {
+  display: 'inline-block',
+  padding: '10px 20px',
+  fontSize: '16px'
+}
 
 let fakeServerData = {
   user: {
@@ -26,8 +44,8 @@ let fakeServerData = {
 class PlaylistsCounter extends Component {
   render() {
     return (<div style={{
-        ...defaultStyle,
-        display: 'inline-block'
+      ...defaultLabel,
+      ...defualtInlineLabel
     }}>
       <h2>
         {this.props.playlists.length} playlists
@@ -47,8 +65,8 @@ class HoursCounter extends Component {
 
     return (
       <div style={{
-        ...defaultStyle,
-        display: 'inline-block'
+        ...defaultLabel,
+        ...defualtInlineLabel
       }}>
         <h2>{Math.round(totalDuration/60)} minutes</h2>
       </div>
@@ -59,11 +77,16 @@ class HoursCounter extends Component {
 
 class Filter extends Component {
   render() {
-    return (<div className='app' style={defaultStyle}>
-      <img/>
-      <input type="text" onKeyUp={event =>
+    return (<div className='app' style={{
+      marginBottom: '1em'
+    }}>
+      <label style={{
+        ...defaultLabel,
+        display: 'inline-block',
+        marginRight: '10px'
+      }}>Filter</label>
+      <input style={{...defaultInput}} type="text" onKeyUp={event =>
         this.props.onTextChange(event.target.value)}></input>
-      Filter
     </div>);
   }
 }
@@ -72,7 +95,7 @@ class Playlist extends Component {
   render() {
     let playlist = this.props.playlist;
     return (<div style={{
-        ...defaultStyle,
+        ...defaultLabel,
         display: 'inline-block',
         verticalAlign: 'top',
         width: '25%',
@@ -142,7 +165,7 @@ class App extends Component {
       <div className='App'>
         {this.state.user ?
           <div>
-            <h1 style={defaultStyle}>
+            <h1 style={defaultTitle}>
               {this.state.user.name}'s Playlist
             </h1>
             <PlaylistsCounter playlists={playlistsToRender}/>
