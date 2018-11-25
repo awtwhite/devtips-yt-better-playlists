@@ -74,9 +74,11 @@ class Playlist extends Component {
     return (<div style={{
         ...defaultStyle,
         display: 'inline-block',
-        width: "25%"
+        verticalAlign: 'top',
+        width: '25%',
+        padding: '5px'
     }}>
-      <img/>
+      <img style={{width: '100%'}} src={playlist.imageUrl}/>
       <h3>{playlist.name}</h3>
       <ul>
         {playlist.songs.map(song =>
@@ -99,6 +101,9 @@ class App extends Component {
       let parsed = queryString.parse(window.location.search)
       let accessToken = parsed.access_token
 
+      if(!accessToken)
+        return;
+
       fetch('https://api.spotify.com/v1/me', {
         headers: {'Authorization': 'Bearer ' + accessToken}
       }).then(response => response.json())
@@ -112,10 +117,16 @@ class App extends Component {
         headers: {'Authorization': 'Bearer ' + accessToken}
       }).then(response => response.json())
       .then(data => this.setState({
-        playlists: data.items.map(item => ({
-          name: item.name,
-          songs: []
-        }))
+        playlists: data.items.map(item => {
+          var imageUrl = item.images.length > 0
+            ? item.images[0].url
+            : 'https://via.placeholder.com/150'
+          return {
+            name: item.name,
+            imageUrl: imageUrl,
+            songs: []
+          }
+        })
       }))
   }
   render() {
@@ -141,9 +152,12 @@ class App extends Component {
               <Playlist playlist={playlist} />
             )}
           </div> : <button
-            onClick={() => window.location='http://localhost:8888/login'}
-            style={{padding: '20px', fontSize: '16px'}}>
-          Log in with Spotify</button>
+            onClick={() => {
+              window.location = window.location.href.includes('localhost')
+                ? 'http://localhost:8888/login'
+                : 'https://infinite-peak-11339.herokuapp.com/'
+            }}
+            style={{padding: '20px', fontSize: '16px'}}>Log in with Spotify</button>
         }
       </div>
     );
