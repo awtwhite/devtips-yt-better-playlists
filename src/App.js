@@ -1,13 +1,7 @@
 import React, {Component} from 'react';
 import queryString from 'query-string';
-import logo from './logo.svg';
+import 'normalize.css/normalize.css';
 import './App.css';
-
-let defaultTitle = {
-  margin: '0.2em 0 0.4em',
-  color: '#fff',
-  fontSize: '52px'
-}
 
 let defaultLabel = {
   color: '#fff',
@@ -22,31 +16,27 @@ let defualtInlineLabel = {
 let defaultInput = {
   display: 'inline-block',
   padding: '10px 20px',
+  width: '100%',
+  maxWidth: '460px',
   fontSize: '16px'
 }
 
-let fakeServerData = {
-  user: {
-    name: 'Andrew',
-    playlists: [
-      {
-        name: 'Favourites',
-        songs: [
-          { name: 'Starcity', duration: 200 },
-          { name: 'Many plow' , duration: 200 },
-          { name: 'Serpent sole', duration: 200 }
-        ]
-      }
-    ]
-  }
+let removeListSTyles = {
+  margin: 0,
+  paddingLeft: 0,
+  listStyle: 'none'
 }
 
 class PlaylistsCounter extends Component {
   render() {
-    return (<div style={{
+    let noPlaylistsFound = this.props.playlists.length === 0
+    let playlistsCounterStyle = {
       ...defaultLabel,
-      ...defualtInlineLabel
-    }}>
+      ...defualtInlineLabel,
+        opacity: noPlaylistsFound ? '0.3' : '1'
+    }
+
+    return (<div style={playlistsCounterStyle}>
       <h2>
         {this.props.playlists.length} playlists
       </h2>
@@ -54,7 +44,7 @@ class PlaylistsCounter extends Component {
   }
 }
 
-class HoursCounter extends Component {
+class DurationCounter extends Component {
   render() {
     let allSongs = this.props.playlists.reduce((collective, eachPlaylist) => {
       return collective.concat(eachPlaylist.songs) }, [])
@@ -63,12 +53,18 @@ class HoursCounter extends Component {
       return sum + eachSong.duration
     }, 0)
 
+    let totalDurationInMinutes = Math.round(totalDuration/60)
+
+    let noDuration = totalDurationInMinutes === 0
+    let hoursCounterStyle = {
+      ...defaultLabel,
+      ...defualtInlineLabel,
+        opacity: noDuration ? '0.3' : '1'
+    }
+
     return (
-      <div style={{
-        ...defaultLabel,
-        ...defualtInlineLabel
-      }}>
-        <h2>{Math.round(totalDuration/60)} minutes</h2>
+      <div style={hoursCounterStyle}>
+        <h2>{totalDurationInMinutes} minutes</h2>
       </div>
     );
 
@@ -80,12 +76,7 @@ class Filter extends Component {
     return (<div className='app' style={{
       marginBottom: '1em'
     }}>
-      <label style={{
-        ...defaultLabel,
-        display: 'inline-block',
-        marginRight: '10px'
-      }}>Filter</label>
-      <input style={{...defaultInput}} type="text" onKeyUp={event =>
+      <input placeholder="Filter playlists" style={{...defaultInput}} type="text" onKeyUp={event =>
         this.props.onTextChange(event.target.value)}></input>
     </div>);
   }
@@ -95,19 +86,28 @@ class Playlist extends Component {
   render() {
     let playlist = this.props.playlist;
     return (<div style={{
-        ...defaultLabel,
-        display: 'inline-block',
-        verticalAlign: 'top',
         width: '25%',
-        padding: '5px'
+        padding: '10px'
     }}>
-      <img style={{width: '100%'}} src={playlist.imageUrl}/>
-      <h3>{playlist.name}</h3>
-      <ul>
-        {playlist.songs.map(song =>
-          <li>{song.name}</li>
-        )}
-      </ul>
+      <div style={{
+          backgroundColor: 'rgba(255,230,200, 0.1)',
+          border: '1px solid rgba(255,255,255, 0.25)',
+          height: '100%'
+      }}>
+        <img style={{width: '100%'}} src={playlist.imageUrl}/>
+        <div style={{
+          ...defaultLabel,
+          padding: '15px',
+          textAlign: 'left'
+        }}>
+          <h3>{playlist.name}</h3>
+          <ul style={removeListSTyles}>
+            {playlist.songs.map(song =>
+              <li>{song.name}</li>
+            )}
+          </ul>
+        </div>
+      </div>
     </div>);
   }
 }
@@ -194,15 +194,24 @@ class App extends Component {
       <div className='App'>
         {this.state.user ?
           <div>
-            <h1 style={defaultTitle}>
+            <h1 style={{
+              margin: '0.2em 0 0.4em',
+              color: '#fff',
+              fontSize: '52px'
+            }}>
               {this.state.user.name}'s Playlist
             </h1>
             <PlaylistsCounter playlists={playlistsToRender}/>
-            <HoursCounter playlists={playlistsToRender}/>
+            <DurationCounter playlists={playlistsToRender}/>
             <Filter onTextChange={text => this.setState({filterKeyword: text})}/>
-            {playlistsToRender.map(playlist =>
-              <Playlist playlist={playlist} />
-            )}
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap'
+            }}>
+              {playlistsToRender.map(playlist =>
+                <Playlist playlist={playlist} />
+              )}
+            </div>
           </div> : <button
             onClick={() => {
               window.location = window.location.href.includes('localhost')
